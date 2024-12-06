@@ -26,14 +26,7 @@ for package in required_packages:
     try:
         __import__(package)
     except ImportError:
-        st.write(f"Installing missing package: {package}")
-        try:
-            subprocess.check_call([pip_path, "install", package])
-            __import__(package)
-            st.write(f"Successfully installed {package}")
-        except subprocess.CalledProcessError as e:
-            st.error(f"Failed to install {package}. Error: {e}")
-            st.stop()
+        subprocess.run([pip_path, "install", package], check=True)
 
 # Import after ensuring the package is installed
 try:
