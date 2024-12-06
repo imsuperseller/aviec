@@ -103,7 +103,7 @@ if uploaded_file:
     # List Price Distribution
     st.subheader("Distribution of List Prices")
     fig, ax = plt.subplots(figsize=(10, 6))
-    ax.hist(df['List_Price'].dropna(), bins=20, edgecolor='black', color='skyblue')
+    ax.hist(pd.to_numeric(df['List_Price'], errors='coerce').dropna(), bins=20, edgecolor='black', color='skyblue')
     ax.set_xlabel('List Price ($)')
     ax.set_ylabel('Frequency')
     ax.set_title('Distribution of List Prices')
@@ -113,7 +113,7 @@ if uploaded_file:
     # Sold Price Distribution
     st.subheader("Distribution of Sold Prices")
     fig, ax = plt.subplots(figsize=(10, 6))
-    ax.hist(df['Sold_Price'][df['Sold_Price'] != 'Not Applicable'].dropna().astype(float), bins=20, edgecolor='black', color='lightcoral')
+    ax.hist(pd.to_numeric(df['Sold_Price'][df['Sold_Price'] != 'Not Applicable'], errors='coerce').dropna(), bins=20, edgecolor='black', color='lightcoral')
     ax.set_xlabel('Sold Price ($)')
     ax.set_ylabel('Frequency')
     ax.set_title('Distribution of Sold Prices')
