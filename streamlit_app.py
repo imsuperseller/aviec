@@ -7,25 +7,36 @@ import io
 import pdfplumber
 import subprocess
 import sys
+import os
 
-# Ensure required packages are installed
-def install_missing_packages():
-    required_packages = ['matplotlib', 'seaborn', 'scikit-learn', 'pandas', 'streamlit', 'pdfplumber']
-    for package in required_packages:
+# Create a virtual environment
+venv_path = "./env"
+if not os.path.exists(venv_path):
+    subprocess.check_call([sys.executable, "-m", "venv", venv_path])
+    subprocess.check_call([os.path.join(venv_path, "bin", "pip"), "install", "--upgrade", "pip"])
+
+# Activate virtual environment
+activate_this_file = os.path.join(venv_path, "bin", "activate_this.py")
+with open(activate_this_file) as f:
+    exec(f.read(), {'__file__': activate_this_file})
+
+# Ensure required packages are installed in virtual environment
+pip_path = os.path.join(venv_path, "bin", "pip")
+required_packages = ['matplotlib', 'seaborn', 'scikit-learn', 'pandas', 'streamlit', 'pdfplumber']
+for package in required_packages:
+    try:
+        __import__(package)
+    except ImportError:
+        st.write(f"Installing missing package: {package}")
         try:
-            __import__(package)
-        except ImportError:
-            st.write(f"Installing missing package: {package}")
+            subprocess.check_call([pip_path, "install", package])
             try:
-                subprocess.check_call([sys.executable, '-m', 'pip', 'install', package])
                 __import__(package)
                 st.write(f"Successfully installed {package}")
-            except subprocess.CalledProcessError as e:
-                st.error(f"Failed to install {package}. Error: {e}")
             except ImportError:
                 st.error(f"Failed to import {package} even after installation. Please check your environment.")
-
-install_missing_packages()
+        except subprocess.CalledProcessError as e:
+            st.error(f"Failed to install {package}. Error: {e}")
 
 from sklearn.linear_model import LinearRegression  # Import after ensuring the package is installed
 
