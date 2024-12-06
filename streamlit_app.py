@@ -12,6 +12,7 @@ import time
 
 # Create a virtual environment
 venv_path = "./env"
+required_packages = ['matplotlib', 'seaborn', 'scikit-learn', 'pandas', 'streamlit', 'pdfplumber']
 if not os.path.exists(venv_path):
     subprocess.check_call([sys.executable, "-m", "venv", venv_path])
     subprocess.check_call([os.path.join(venv_path, "bin", "pip"), "install", "--upgrade", "pip"])
@@ -21,7 +22,6 @@ if not os.path.exists(venv_path):
 pip_path = os.path.join(venv_path, "bin", "pip")
 
 # Ensure required packages are installed in virtual environment
-required_packages = ['matplotlib', 'seaborn', 'scikit-learn', 'pandas', 'streamlit', 'pdfplumber']
 for package in required_packages:
     try:
         __import__(package)
