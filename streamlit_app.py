@@ -35,14 +35,19 @@ for package in required_packages:
                     __import__(package)  # Try importing again after installation
                     st.write(f"Successfully installed {package}")
                     break
-                except (subprocess.CalledProcessError, ImportError) as e:
+                except subprocess.CalledProcessError as e:
                     st.error(f"Failed to install {package} on attempt {attempt + 1}. Retrying...")
                     time.sleep(2)  # Wait before retrying
             else:
                 st.error(f"Failed to install {package} after 3 attempts. Please check your environment.")
                 st.stop()
 
-from sklearn.linear_model import LinearRegression  # Import after ensuring the package is installed
+# Import after ensuring the package is installed
+try:
+    from sklearn.linear_model import LinearRegression
+except ImportError:
+    st.error("Failed to import scikit-learn after multiple installation attempts. Exiting the program.")
+    st.stop()
 
 # Streamlit setup
 st.title("Real Estate Analysis Tool")
