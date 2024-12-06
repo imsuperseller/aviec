@@ -85,6 +85,9 @@ if uploaded_file:
                     expected_columns = ['MLS_ID', 'Address', 'City', 'State', 'Zip', 'Status', 'Beds', 'Baths', 'SqFt', 'Year_Built', 'List_Price', 'Sold_Price', 'Sale_List_Ratio', 'CDOM', 'Pool']
                     if df.shape[1] == len(expected_columns):
                         df.columns = expected_columns
+                    else:
+                        # Provide a generic column naming if the structure doesn't match
+                        df.columns = [f'Column_{i}' for i in range(df.shape[1])]
                     st.write("Data has been split into columns:", df.columns.tolist())
                 else:
                     st.write("Data already contains multiple columns.")
