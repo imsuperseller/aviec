@@ -74,7 +74,7 @@ if uploaded_file:
 
     # Summary Analysis
     st.subheader("Summary Statistics")
-    if 'Status' in df.columns:
+    if 'Status' in df.columns and 'MLS_ID' in df.columns:
         summary_stats = df.groupby('Status').agg(
             Total_Listings=('MLS_ID', 'count'),
             Avg_List_Price=('List_Price', lambda x: pd.to_numeric(x, errors='coerce').mean() if not x.empty else 'Not Applicable'),
@@ -121,7 +121,7 @@ if uploaded_file:
             ax.text(index, value + 0.1, str(value), ha='center', fontsize=10, color='black')
         st.pyplot(fig)
     else:
-        st.error("The dataset does not contain a 'Status' column, which is required for summary statistics.")
+        st.error("The dataset does not contain required columns ('Status' and 'MLS_ID') for summary statistics.")
 
     # List Price Distribution
     if 'List_Price' in df.columns:
