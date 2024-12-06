@@ -17,40 +17,22 @@ if not os.path.exists(venv_path):
     subprocess.check_call([os.path.join(venv_path, "bin", "pip"), "install", "--upgrade", "pip"])
 
 # Use the Python and Pip from the virtual environment
-python_path = os.path.join(venv_path, "bin", "python")
 pip_path = os.path.join(venv_path, "bin", "pip")
 
 # Ensure required packages are installed in virtual environment
 required_packages = ['matplotlib', 'seaborn', 'scikit-learn', 'pandas', 'streamlit', 'pdfplumber']
 for package in required_packages:
-    for attempt in range(3):  # Retry logic for package installation
+    try:
+        __import__(package)
+    except ImportError:
+        st.write(f"Installing missing package: {package}")
         try:
+            subprocess.check_call([pip_path, "install", package])
             __import__(package)
-            break  # If import is successful, break out of retry loop
-        except ImportError:
-            if attempt < 2:  # Retry only for the first two attempts
-                st.write(f"Attempting to install missing package: {package} (Attempt {attempt + 1}/3)")
-                try:
-                    subprocess.check_call([pip_path, "install", package])
-                    __import__(package)  # Try importing again after installation
-                    st.write(f"Successfully installed {package}")
-                    break
-                except (subprocess.CalledProcessError, ImportError) as e:
-                    st.error(f"Failed to install {package} on attempt {attempt + 1}. Retrying...")
-                    time.sleep(2)  # Wait before retrying
-            else:
-                st.error(f"Failed to install {package} after 3 attempts. Please check your environment.")
-                # Print environment variables for debugging
-                st.write("Environment PATH:", os.environ["PATH"])
-                st.write("Python Path:", python_path)
-                st.write("Pip Path:", pip_path)
-                # Check if pip list shows scikit-learn
-                try:
-                    installed_packages = subprocess.check_output([pip_path, "list"]).decode("utf-8")
-                    st.write("Installed Packages:\n", installed_packages)
-                except subprocess.CalledProcessError as e:
-                    st.error(f"Failed to list installed packages. Error: {e}")
-                st.stop()
+            st.write(f"Successfully installed {package}")
+        except subprocess.CalledProcessError as e:
+            st.error(f"Failed to install {package}. Error: {e}")
+            st.stop()
 
 # Import after ensuring the package is installed
 try:
@@ -58,7 +40,7 @@ try:
     import sklearn
     st.write("scikit-learn version:", sklearn.__version__)
 except ImportError:
-    st.error("Failed to import scikit-learn after multiple installation attempts. Exiting the program.")
+    st.error("Failed to import scikit-learn after installation. Exiting the program.")
     st.stop()
 
 # Streamlit setup
