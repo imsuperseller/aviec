@@ -70,7 +70,7 @@ if uploaded_file:
                 st.stop()
 
     # Replace NaN with 'Not Applicable' for readability in specific columns
-    df.fillna({'Sold_Price': 'Not Applicable', 'Sale_List_Ratio': 'Not Applicable', 'Sold_Date': 'Not Applicable'}, inplace=True)
+    df.fillna('Not Applicable', inplace=True)
 
     # Summary Analysis
     st.subheader("Summary Statistics")
@@ -85,7 +85,7 @@ if uploaded_file:
         ).reset_index()
 
         # Replace NaN with readable values in summary stats after calculations
-        summary_stats.fillna({'Avg_Sold_Price': 'Not Applicable', 'Avg_Sale_List_Ratio': 'Not Applicable'}, inplace=True)
+        summary_stats.fillna('Not Applicable', inplace=True)
         st.write(summary_stats)
 
         # Calculate Average DOM for each Status if the column 'CDOM' exists
