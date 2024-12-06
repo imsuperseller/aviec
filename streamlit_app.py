@@ -2,7 +2,6 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
 import seaborn as sns
-from sklearn.linear_model import LinearRegression
 import streamlit as st
 import subprocess
 import sys
@@ -15,7 +14,8 @@ if not os.path.exists(venv_path):
     subprocess.check_call([sys.executable, "-m", "venv", venv_path])
     subprocess.check_call([os.path.join(venv_path, "bin", "pip"), "install", "--upgrade", "pip"])
 
-# Activate virtual environment
+# Set up paths for virtual environment
+venv_python = os.path.join(venv_path, "bin", "python")
 pip_path = os.path.join(venv_path, "bin", "pip")
 
 # Ensure required packages are installed in virtual environment
@@ -26,7 +26,7 @@ for package in required_packages:
     except ImportError:
         st.write(f"Installing missing package: {package}")
         try:
-            subprocess.check_call([pip_path, "install", package])
+            subprocess.check_call([venv_python, "-m", "pip", "install", package])
             try:
                 __import__(package)
                 st.write(f"Successfully installed {package}")
@@ -35,7 +35,9 @@ for package in required_packages:
         except subprocess.CalledProcessError as e:
             st.error(f"Failed to install {package}. Error: {e}")
 
-import pdfplumber  # Import after ensuring the package is installed
+# Import scikit-learn and pdfplumber after ensuring they're installed
+import pdfplumber
+from sklearn.linear_model import LinearRegression
 
 # Streamlit setup
 st.title("Real Estate Analysis Tool")
