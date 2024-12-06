@@ -17,7 +17,7 @@ def install_missing_packages():
         except ImportError:
             st.write(f"Installing missing package: {package}")
             try:
-                subprocess.check_call([sys.executable, '-m', 'pip', 'install', package])
+                subprocess.check_call([sys.executable, '-m', 'pip', 'install', '--force-reinstall', package])
                 __import__(package)
                 st.write(f"Successfully installed {package}")
             except subprocess.CalledProcessError as e:
