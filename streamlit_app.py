@@ -15,13 +15,11 @@ if not os.path.exists(venv_path):
     subprocess.check_call([sys.executable, "-m", "venv", venv_path])
     subprocess.check_call([os.path.join(venv_path, "bin", "pip"), "install", "--upgrade", "pip"])
 
-# Activate virtual environment
-activate_this_file = os.path.join(venv_path, "bin", "activate_this.py")
-with open(activate_this_file) as f:
-    exec(f.read(), {'__file__': activate_this_file})
+# Use the Python and Pip from the virtual environment
+python_path = os.path.join(venv_path, "bin", "python")
+pip_path = os.path.join(venv_path, "bin", "pip")
 
 # Ensure required packages are installed in virtual environment
-pip_path = os.path.join(venv_path, "bin", "pip")
 required_packages = ['matplotlib', 'seaborn', 'scikit-learn', 'pandas', 'streamlit', 'pdfplumber']
 for package in required_packages:
     try:
