@@ -7,26 +7,32 @@ import streamlit as st
 import subprocess
 import sys
 import io
+import os
 
-# Ensure required packages are installed
-def install_missing_packages():
-    required_packages = ['matplotlib', 'seaborn', 'scikit-learn', 'pandas', 'streamlit', 'pdfplumber']
-    for package in required_packages:
+# Create a virtual environment
+venv_path = "./env"
+if not os.path.exists(venv_path):
+    subprocess.check_call([sys.executable, "-m", "venv", venv_path])
+    subprocess.check_call([os.path.join(venv_path, "bin", "pip"), "install", "--upgrade", "pip"])
+
+# Activate virtual environment
+pip_path = os.path.join(venv_path, "bin", "pip")
+
+# Ensure required packages are installed in virtual environment
+required_packages = ['matplotlib', 'seaborn', 'scikit-learn', 'pandas', 'streamlit', 'pdfplumber']
+for package in required_packages:
+    try:
+        __import__(package)
+    except ImportError:
+        print(f"Installing missing package: {package}")
         try:
+            subprocess.check_call([pip_path, "install", package])
             __import__(package)
+            print(f"Successfully installed {package}")
+        except subprocess.CalledProcessError as e:
+            print(f"Failed to install {package}. Error: {e}")
         except ImportError:
-            st.write(f"Installing missing package: {package}")
-            try:
-                subprocess.check_call([sys.executable, '-m', 'pip', 'install', '--force-reinstall', package])
-                try:
-                    __import__(package)
-                    st.write(f"Successfully installed {package}")
-                except ImportError:
-                    st.error(f"Failed to import {package} even after installation. Please check your environment.")
-            except subprocess.CalledProcessError as e:
-                st.error(f"Failed to install {package}. Error: {e}")
-
-install_missing_packages()
+            print(f"Failed to import {package} even after installation. Please check your environment.")
 
 import pdfplumber  # Import after ensuring the package is installed
 
