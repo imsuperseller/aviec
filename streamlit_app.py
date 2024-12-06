@@ -6,7 +6,6 @@ from sklearn.linear_model import LinearRegression
 import streamlit as st
 import subprocess
 import sys
-import pdfplumber  # New library for PDF handling
 import io
 
 # Ensure required packages are installed
@@ -16,9 +15,17 @@ def install_missing_packages():
         try:
             __import__(package)
         except ImportError:
+            st.write(f"Installing missing package: {package}")
             subprocess.check_call([sys.executable, '-m', 'pip', 'install', package])
+            try:
+                __import__(package)
+                st.write(f"Successfully installed {package}")
+            except ImportError:
+                st.write(f"Failed to import {package} after installation. Please check your environment.")
 
 install_missing_packages()
+
+import pdfplumber  # Import after ensuring the package is installed
 
 # Streamlit setup
 st.title("Real Estate Analysis Tool")
