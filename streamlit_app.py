@@ -15,6 +15,7 @@ venv_path = "./env"
 if not os.path.exists(venv_path):
     subprocess.check_call([sys.executable, "-m", "venv", venv_path])
     subprocess.check_call([os.path.join(venv_path, "bin", "pip"), "install", "--upgrade", "pip"])
+    subprocess.check_call([os.path.join(venv_path, "bin", "pip"), "install"] + required_packages)
 
 # Use the Python and Pip from the virtual environment
 pip_path = os.path.join(venv_path, "bin", "pip")
