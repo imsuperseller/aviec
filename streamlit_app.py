@@ -16,12 +16,14 @@ def install_missing_packages():
             __import__(package)
         except ImportError:
             st.write(f"Installing missing package: {package}")
-            subprocess.check_call([sys.executable, '-m', 'pip', 'install', package])
             try:
+                subprocess.check_call([sys.executable, '-m', 'pip', 'install', package])
                 __import__(package)
                 st.write(f"Successfully installed {package}")
+            except subprocess.CalledProcessError as e:
+                st.write(f"Failed to install {package}. Error: {e}")
             except ImportError:
-                st.write(f"Failed to import {package} after installation. Please check your environment.")
+                st.write(f"Failed to import {package} even after installation. Please check your environment.")
 
 install_missing_packages()
 
