@@ -121,7 +121,7 @@ if uploaded_file:
             ax.text(index, value + 0.1, str(value), ha='center', fontsize=10, color='black')
         st.pyplot(fig)
     else:
-        st.error("The dataset does not contain required columns ('Status' and 'MLS_ID') for summary statistics.")
+        st.error("The dataset must contain both 'Status' and 'MLS_ID' columns for summary statistics. Please check your data and try again.")
 
     # List Price Distribution
     if 'List_Price' in df.columns:
@@ -134,7 +134,7 @@ if uploaded_file:
         ax.grid(True)
         st.pyplot(fig)
     else:
-        st.error("The dataset does not contain a 'List_Price' column for visualization.")
+        st.error("The dataset must contain a 'List_Price' column for visualization. Please check your data and try again.")
 
     # Sold Price Distribution
     if 'Sold_Price' in df.columns:
@@ -147,7 +147,7 @@ if uploaded_file:
         ax.grid(True)
         st.pyplot(fig)
     else:
-        st.error("The dataset does not contain a 'Sold_Price' column for visualization.")
+        st.error("The dataset must contain a 'Sold_Price' column for visualization. Please check your data and try again.")
 
     # Scatter Plot: SqFt vs List Price
     if 'SqFt' in df.columns and 'List_Price' in df.columns:
@@ -161,4 +161,4 @@ if uploaded_file:
         ax.grid(True)
         st.pyplot(fig)
     else:
-        st.error("The dataset does not contain both 'SqFt' and 'List_Price' columns for scatter plot visualization.")
+        st.error("The dataset must contain both 'SqFt' and 'List_Price' columns for scatter plot visualization. Please check your data and try again.")
