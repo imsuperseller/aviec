@@ -1,3 +1,31 @@
+import os
+import sys
+import subprocess
+
+# Create a virtual environment
+venv_path = "./env"
+required_packages = ['matplotlib', 'seaborn', 'scikit-learn', 'pandas', 'streamlit', 'pdfplumber']
+
+if not os.path.exists(venv_path):
+    # Creating a virtual environment
+    subprocess.check_call([sys.executable, "-m", "venv", venv_path])
+    
+    # Upgrade pip and install packages
+    subprocess.check_call([os.path.join(venv_path, "bin", "pip"), "install", "--upgrade", "pip"])
+    subprocess.check_call([os.path.join(venv_path, "bin", "pip"), "install"] + required_packages)
+
+# Use Python and Pip from the virtual environment
+python_path = os.path.join(venv_path, "bin", "python")
+pip_path = os.path.join(venv_path, "bin", "pip")
+
+# Install required packages if they are missing
+for package in required_packages:
+    try:
+        __import__(package)
+    except ImportError:
+        subprocess.run([pip_path, "install", package], check=True)
+
+# Now you can use your packages
 import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
@@ -5,37 +33,11 @@ import seaborn as sns
 import streamlit as st
 import io
 import pdfplumber
-import subprocess
-import sys
-import os
-import time
 
-# Create a virtual environment
-venv_path = "./env"
-required_packages = ['matplotlib', 'seaborn', 'scikit-learn', 'pandas', 'streamlit', 'pdfplumber']
-if not os.path.exists(venv_path):
-    subprocess.check_call([sys.executable, "-m", "venv", venv_path])
-    subprocess.check_call([os.path.join(venv_path, "bin", "pip"), "install", "--upgrade", "pip"])
-    subprocess.check_call([os.path.join(venv_path, "bin", "pip"), "install"] + required_packages)
+from sklearn.linear_model import LinearRegression
+import sklearn
 
-# Use the Python and Pip from the virtual environment
-pip_path = os.path.join(venv_path, "bin", "pip")
-
-# Ensure required packages are installed in virtual environment
-for package in required_packages:
-    try:
-        __import__(package)
-    except ImportError:
-        subprocess.run([pip_path, "install", package], check=True)
-
-# Import after ensuring the package is installed
-try:
-    from sklearn.linear_model import LinearRegression
-    import sklearn
-    st.write("scikit-learn version:", sklearn.__version__)
-except ImportError:
-    st.error("Failed to import scikit-learn after installation. Exiting the program.")
-    st.stop()
+st.write("scikit-learn version:", sklearn.__version__)
 
 # Streamlit setup
 st.title("Real Estate Analysis Tool")
@@ -84,13 +86,12 @@ if uploaded_file:
     summary_stats.fillna({'Avg_Sold_Price': 'Not Applicable', 'Avg_Sale_List_Ratio': 'Not Applicable'}, inplace=True)
     st.write(summary_stats)
 
-    # Calculate Average DOM for each Status if the column 'CDOM' exists
+    # Additional calculations for analysis
     if 'CDOM' in df.columns:
         summary_stats['Avg_DOM'] = df.groupby('Status')['CDOM'].mean().reset_index(drop=True)
     else:
         summary_stats['Avg_DOM'] = 'Not Applicable'
 
-    # Count the number of properties with pools by Status if the 'Pool' column exists
     if 'Pool' in df.columns:
         summary_stats['Properties_with_Pool'] = df[df['Pool'] == 'Yes'].groupby('Status')['MLS_ID'].count().reindex(summary_stats['Status']).fillna(0).reset_index(drop=True)
     else:
@@ -117,7 +118,7 @@ if uploaded_file:
         ax.text(index, value + 0.1, str(value), ha='center', fontsize=10, color='black')
     st.pyplot(fig)
 
-    # List Price Distribution
+    # Additional Visualizations
     st.subheader("Distribution of List Prices")
     fig, ax = plt.subplots(figsize=(10, 6))
     ax.hist(pd.to_numeric(df['List_Price'], errors='coerce').dropna(), bins=20, edgecolor='black', color='skyblue')
@@ -126,24 +127,3 @@ if uploaded_file:
     ax.set_title('Distribution of List Prices')
     ax.grid(True)
     st.pyplot(fig)
-
-    # Sold Price Distribution
-    st.subheader("Distribution of Sold Prices")
-    fig, ax = plt.subplots(figsize=(10, 6))
-    ax.hist(pd.to_numeric(df['Sold_Price'][df['Sold_Price'] != 'Not Applicable'], errors='coerce').dropna(), bins=20, edgecolor='black', color='lightcoral')
-    ax.set_xlabel('Sold Price ($)')
-    ax.set_ylabel('Frequency')
-    ax.set_title('Distribution of Sold Prices')
-    ax.grid(True)
-    st.pyplot(fig)
-
-    # Scatter Plot: SqFt vs List Price
-    st.subheader("Property Size vs List Price")
-    filtered_df_lp = df.dropna(subset=['SqFt', 'List_Price'])
-    fig, ax = plt.subplots(figsize=(10, 6))
-    ax.scatter(filtered_df_lp['SqFt'], pd.to_numeric(filtered_df_lp['List_Price'], errors='coerce'), alpha=0.5, color='dodgerblue')
-    ax.set_xlabel('SqFt')
-    ax.set_ylabel('List Price ($)')
-    ax.set_title('Property Size vs List Price')
-    ax.grid(True)
-    x = filtered_df_lp['SqFt'].values
