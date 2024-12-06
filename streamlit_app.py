@@ -21,9 +21,9 @@ if not os.path.exists(venv_path):
     subprocess.check_call([os.path.join(venv_path, "bin", "pip"), "install"] + required_packages)
 
 # Update the system path to use the virtual environment
-activate_this_file = os.path.join(venv_path, 'bin', 'activate_this.py')
-with open(activate_this_file) as f:
-    exec(f.read(), {'__file__': activate_this_file})
+activate_script = os.path.join(venv_path, 'bin', 'activate')
+os.environ['VIRTUAL_ENV'] = venv_path
+os.environ['PATH'] = os.path.join(venv_path, 'bin') + os.pathsep + os.environ['PATH']
 
 # Import required packages after ensuring they are installed
 try:
