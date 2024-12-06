@@ -2,42 +2,10 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
 import seaborn as sns
-import streamlit as st
-import subprocess
-import sys
-import io
-import os
-
-# Create a virtual environment
-venv_path = "./env"
-if not os.path.exists(venv_path):
-    subprocess.check_call([sys.executable, "-m", "venv", venv_path])
-    subprocess.check_call([os.path.join(venv_path, "bin", "pip"), "install", "--upgrade", "pip"])
-
-# Set up paths for virtual environment
-venv_python = os.path.join(venv_path, "bin", "python")
-pip_path = os.path.join(venv_path, "bin", "pip")
-
-# Ensure required packages are installed in virtual environment
-required_packages = ['matplotlib', 'seaborn', 'scikit-learn', 'pandas', 'streamlit', 'pdfplumber']
-for package in required_packages:
-    try:
-        __import__(package)
-    except ImportError:
-        st.write(f"Installing missing package: {package}")
-        try:
-            subprocess.check_call([venv_python, "-m", "pip", "install", package])
-            try:
-                __import__(package)
-                st.write(f"Successfully installed {package}")
-            except ImportError:
-                st.error(f"Failed to import {package} even after installation. Please check your environment.")
-        except subprocess.CalledProcessError as e:
-            st.error(f"Failed to install {package}. Error: {e}")
-
-# Import scikit-learn and pdfplumber after ensuring they're installed
-import pdfplumber
 from sklearn.linear_model import LinearRegression
+import streamlit as st
+import io
+import pdfplumber
 
 # Streamlit setup
 st.title("Real Estate Analysis Tool")
