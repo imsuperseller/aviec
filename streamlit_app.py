@@ -24,15 +24,16 @@ for package in required_packages:
     try:
         __import__(package)
     except ImportError:
-        print(f"Installing missing package: {package}")
+        st.write(f"Installing missing package: {package}")
         try:
             subprocess.check_call([pip_path, "install", package])
-            __import__(package)
-            print(f"Successfully installed {package}")
+            try:
+                __import__(package)
+                st.write(f"Successfully installed {package}")
+            except ImportError:
+                st.error(f"Failed to import {package} even after installation. Please check your environment.")
         except subprocess.CalledProcessError as e:
-            print(f"Failed to install {package}. Error: {e}")
-        except ImportError:
-            print(f"Failed to import {package} even after installation. Please check your environment.")
+            st.error(f"Failed to install {package}. Error: {e}")
 
 import pdfplumber  # Import after ensuring the package is installed
 
