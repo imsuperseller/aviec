@@ -77,11 +77,11 @@ if uploaded_file:
     if 'Status' in df.columns:
         summary_stats = df.groupby('Status').agg(
             Total_Listings=('MLS_ID', 'count'),
-            Avg_List_Price=('List_Price', lambda x: pd.to_numeric(x, errors='coerce').mean()),
-            Avg_Sold_Price=('Sold_Price', lambda x: pd.to_numeric(x, errors='coerce').mean()),
-            Avg_Sale_List_Ratio=('Sale_List_Ratio', lambda x: pd.to_numeric(x.str.replace('%', '', regex=True), errors='coerce').mean()),
-            Median_List_Price=('List_Price', lambda x: pd.to_numeric(x, errors='coerce').median()),
-            Median_Sold_Price=('Sold_Price', lambda x: pd.to_numeric(x, errors='coerce').median())
+            Avg_List_Price=('List_Price', lambda x: pd.to_numeric(x, errors='coerce').mean() if not x.empty else 'Not Applicable'),
+            Avg_Sold_Price=('Sold_Price', lambda x: pd.to_numeric(x, errors='coerce').mean() if not x.empty else 'Not Applicable'),
+            Avg_Sale_List_Ratio=('Sale_List_Ratio', lambda x: pd.to_numeric(x.str.replace('%', '', regex=True), errors='coerce').mean() if not x.empty else 'Not Applicable'),
+            Median_List_Price=('List_Price', lambda x: pd.to_numeric(x, errors='coerce').median() if not x.empty else 'Not Applicable'),
+            Median_Sold_Price=('Sold_Price', lambda x: pd.to_numeric(x, errors='coerce').median() if not x.empty else 'Not Applicable')
         ).reset_index()
 
         # Replace NaN with readable values in summary stats after calculations
