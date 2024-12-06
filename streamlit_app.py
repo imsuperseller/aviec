@@ -35,16 +35,28 @@ for package in required_packages:
                     __import__(package)  # Try importing again after installation
                     st.write(f"Successfully installed {package}")
                     break
-                except subprocess.CalledProcessError as e:
+                except (subprocess.CalledProcessError, ImportError) as e:
                     st.error(f"Failed to install {package} on attempt {attempt + 1}. Retrying...")
                     time.sleep(2)  # Wait before retrying
             else:
                 st.error(f"Failed to install {package} after 3 attempts. Please check your environment.")
+                # Print environment variables for debugging
+                st.write("Environment PATH:", os.environ["PATH"])
+                st.write("Python Path:", python_path)
+                st.write("Pip Path:", pip_path)
+                # Check if pip list shows scikit-learn
+                try:
+                    installed_packages = subprocess.check_output([pip_path, "list"]).decode("utf-8")
+                    st.write("Installed Packages:\n", installed_packages)
+                except subprocess.CalledProcessError as e:
+                    st.error(f"Failed to list installed packages. Error: {e}")
                 st.stop()
 
 # Import after ensuring the package is installed
 try:
     from sklearn.linear_model import LinearRegression
+    import sklearn
+    st.write("scikit-learn version:", sklearn.__version__)
 except ImportError:
     st.error("Failed to import scikit-learn after multiple installation attempts. Exiting the program.")
     st.stop()
