@@ -74,7 +74,7 @@ if uploaded_file:
 
     # Display available columns for user reference
     st.subheader("Columns in Dataset")
-st.write(df.columns.tolist())
+    st.write(df.columns.tolist())
 
     # Check for required columns and provide detailed feedback
     required_columns = ['Status', 'MLS_ID', 'List_Price', 'Sold_Price', 'SqFt']
