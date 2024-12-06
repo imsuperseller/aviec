@@ -73,12 +73,22 @@ if uploaded_file:
     elif uploaded_file.name.endswith('.pdf'):
         # Extract data from PDF using pdfplumber
         with pdfplumber.open(io.BytesIO(uploaded_file.read())) as pdf:
-            pages = pdf.pages
-            text = "\n".join(page.extract_text() for page in pages if page.extract_text())
-            st.write("PDF content has been extracted successfully.")
-            # Placeholder for further processing, converting text to a DataFrame, if possible
-            st.write("Currently, only CSV files are fully supported for data analysis.")
-            st.stop()
+            all_data = []
+            for page in pdf.pages:
+                table = page.extract_table()
+                if table:
+                    all_data.extend(table)
+            
+            if all_data:
+                # Convert extracted table data to DataFrame, assuming first row as header
+                df = pd.DataFrame(all_data[1:], columns=all_data[0])
+                # Attempt to coerce numeric columns for analysis
+                for col in df.columns:
+                    df[col] = pd.to_numeric(df[col], errors='ignore')
+                st.write("PDF table has been extracted and converted to a DataFrame successfully.")
+            else:
+                st.write("No tabular data found in the uploaded PDF.")
+                st.stop()
 
     # Replace NaN with 'Not Applicable' for readability in specific columns
     df.fillna({'Sold_Price': 'Not Applicable', 'Sale_List_Ratio': 'Not Applicable', 'Sold_Date': 'Not Applicable'}, inplace=True)
@@ -160,35 +170,4 @@ if uploaded_file:
     ax.set_ylabel('List Price ($)')
     ax.set_title('Property Size vs List Price')
     ax.grid(True)
-    x = filtered_df_lp['SqFt'].values.reshape(-1, 1)
-    y = pd.to_numeric(filtered_df_lp['List_Price'], errors='coerce').values.reshape(-1, 1)
-    model = LinearRegression().fit(x, y)
-    ax.plot(filtered_df_lp['SqFt'], model.predict(x), color='red', linewidth=2)
-    st.pyplot(fig)
-
-    # Scatter Plot: SqFt vs Sold Price
-    st.subheader("Property Size vs Sold Price")
-    filtered_df_sp = df[(df['Sold_Price'] != 'Not Applicable') & df['SqFt'].notna()]
-    fig, ax = plt.subplots(figsize=(10, 6))
-    ax.scatter(filtered_df_sp['SqFt'], pd.to_numeric(filtered_df_sp['Sold_Price'], errors='coerce'), alpha=0.5, color='orange')
-    ax.set_xlabel('SqFt')
-    ax.set_ylabel('Sold Price ($)')
-    ax.set_title('Property Size vs Sold Price')
-    ax.grid(True)
-    x_sold = filtered_df_sp['SqFt'].values.reshape(-1, 1)
-    y_sold = pd.to_numeric(filtered_df_sp['Sold_Price'], errors='coerce').values.reshape(-1, 1)
-    model_sold = LinearRegression().fit(x_sold, y_sold)
-    ax.plot(filtered_df_sp['SqFt'], model_sold.predict(x_sold), color='red', linewidth=2)
-    st.pyplot(fig)
-
-    # Average Days on Market (DOM) by Status (if available)
-    if 'Avg_DOM' in summary_stats.columns and not isinstance(summary_stats['Avg_DOM'].iloc[0], str):
-        st.subheader("Average Days on Market by Status")
-        fig, ax = plt.subplots(figsize=(8, 5))
-        sns.barplot(x='Status', y='Avg_DOM', data=summary_stats, palette='coolwarm', hue='Status', dodge=False, ax=ax)
-        ax.set_xlabel('Status')
-        ax.set_ylabel('Average Days on Market (DOM)')
-        ax.set_title('Average Days on Market by Status')
-        for index, value in enumerate(summary_stats['Avg_DOM']):
-            ax.text(index, value + 0.5, str(round(value, 1)), ha='center', fontsize=10, color='black')
-        st.pyplot(fig)
+    x = filtered_df_lp['SqFt'].values
