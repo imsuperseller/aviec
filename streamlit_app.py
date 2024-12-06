@@ -61,6 +61,7 @@ if uploaded_file:
             if all_data:
                 # Convert extracted table data to DataFrame, assuming first row as header
                 df = pd.DataFrame(all_data[1:], columns=all_data[0])
+                
                 # Attempt to coerce numeric columns for analysis
                 for col in df.columns:
                     df[col] = pd.to_numeric(df[col], errors='ignore')
@@ -69,12 +70,24 @@ if uploaded_file:
                 # Attempt to split data if extraction combines all data into one column
                 if len(df.columns) == 1:
                     st.write("Attempting to split data into multiple columns...")
-                    df = df[0].str.split(expand=True)
+                    # Try splitting using whitespace or other common delimiters
+                    split_options = [
+                        df.iloc[:, 0].str.split(expand=True),
+                        df.iloc[:, 0].str.split(',', expand=True),
+                        df.iloc[:, 0].str.split(';', expand=True)
+                    ]
+                    for split_df in split_options:
+                        if split_df.shape[1] > 1:
+                            df = split_df
+                            break
+                    
                     # Rename columns if possible based on expected structure
                     expected_columns = ['MLS_ID', 'Address', 'City', 'State', 'Zip', 'Status', 'Beds', 'Baths', 'SqFt', 'Year_Built', 'List_Price', 'Sold_Price', 'Sale_List_Ratio', 'CDOM', 'Pool']
                     if df.shape[1] == len(expected_columns):
                         df.columns = expected_columns
                     st.write("Data has been split into columns:", df.columns.tolist())
+                else:
+                    st.write("Data already contains multiple columns.")
             else:
                 st.write("No tabular data found in the uploaded PDF.")
                 st.stop()
