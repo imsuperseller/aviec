@@ -8,6 +8,7 @@ import pdfplumber
 import subprocess
 import sys
 import os
+import time
 
 # Create a virtual environment
 venv_path = "./env"
@@ -22,19 +23,24 @@ pip_path = os.path.join(venv_path, "bin", "pip")
 # Ensure required packages are installed in virtual environment
 required_packages = ['matplotlib', 'seaborn', 'scikit-learn', 'pandas', 'streamlit', 'pdfplumber']
 for package in required_packages:
-    try:
-        __import__(package)
-    except ImportError:
-        st.write(f"Installing missing package: {package}")
+    for attempt in range(3):  # Retry logic for package installation
         try:
-            subprocess.check_call([pip_path, "install", package])
-            try:
-                __import__(package)
-                st.write(f"Successfully installed {package}")
-            except ImportError:
-                st.error(f"Failed to import {package} even after installation. Please check your environment.")
-        except subprocess.CalledProcessError as e:
-            st.error(f"Failed to install {package}. Error: {e}")
+            __import__(package)
+            break  # If import is successful, break out of retry loop
+        except ImportError:
+            if attempt < 2:  # Retry only for the first two attempts
+                st.write(f"Attempting to install missing package: {package} (Attempt {attempt + 1}/3)")
+                try:
+                    subprocess.check_call([pip_path, "install", package])
+                    __import__(package)  # Try importing again after installation
+                    st.write(f"Successfully installed {package}")
+                    break
+                except (subprocess.CalledProcessError, ImportError) as e:
+                    st.error(f"Failed to install {package} on attempt {attempt + 1}. Retrying...")
+                    time.sleep(2)  # Wait before retrying
+            else:
+                st.error(f"Failed to install {package} after 3 attempts. Please check your environment.")
+                st.stop()
 
 from sklearn.linear_model import LinearRegression  # Import after ensuring the package is installed
 
